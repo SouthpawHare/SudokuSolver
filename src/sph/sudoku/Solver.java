@@ -76,6 +76,11 @@ public class Solver {
 	}
 	
 	public static Puzzle solve(Puzzle puzzle) {
+		SolveStatus status = SolveStatus.Progress;
+		while (!puzzle.isFilled() && status == SolveStatus.Progress) {
+			status = puzzle.solveNext();
+			
+		}
 		
 		return puzzle;
 	}

@@ -3,6 +3,7 @@ package sph.sudoku;
 public class Square {
 	
 	public static final int MAX_VALUE = 9;
+	public static final int BOX_SIZE = 3;
 	private static final String EMPTY = "X";
 	
 	private Integer value;
@@ -22,6 +23,11 @@ public class Square {
 	@Override
 	public String toString() {
 		return (value != null ? String.valueOf(value) : EMPTY);
+	}
+
+	//Returns if the square is filled with a value, i.e. is not empty
+	public boolean isFilled() {
+		return (value != null);
 	}
 
 }
