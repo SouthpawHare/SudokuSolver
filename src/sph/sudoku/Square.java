@@ -3,6 +3,7 @@ package sph.sudoku;
 public class Square {
 	
 	public static final int MAX_VALUE = 9;
+	private static final String EMPTY = "X";
 	
 	private Integer value;
 
@@ -16,6 +17,11 @@ public class Square {
 	
 	public Integer getValue() {
 		return value;
+	}
+	
+	@Override
+	public String toString() {
+		return (value != null ? String.valueOf(value) : EMPTY);
 	}
 
 }

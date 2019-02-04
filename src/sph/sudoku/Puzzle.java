@@ -24,11 +24,12 @@ public class Puzzle {
 			
 			String line = null;
 			do {
-				List<Square> row = new ArrayList<Square>();
-				puzzle.addRow(row);
-				
 				line = reader.readLine();
-				if (line != null) {
+				if (line != null && line.length() > 0) {
+					
+					List<Square> row = new ArrayList<Square>();
+					puzzle.addRow(row);
+					
 					for (int i = 0; i < line.length(); i++) {
 						String s = "" + line.charAt(i);
 						Square square = new Square();
@@ -73,6 +74,24 @@ public class Puzzle {
 
 	private void addRow(List <Square> row) {
 		squares.add(row);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for (List<Square> row : squares) {
+			for (Square square : row) {
+				sb.append(square.toString());
+			}
+			sb.append('\n');
+		}
+		
+		return sb.toString();
+	}
+
+	public boolean isFilled() {
+		return false;
 	}
 
 }
