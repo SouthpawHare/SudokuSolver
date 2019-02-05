@@ -75,8 +75,20 @@ public class Puzzle {
 		return puzzle;
 	}
 	
+	public static Puzzle createEmptyPuzzle() {
+		Puzzle puzzle = new Puzzle();
+		for (int row = 0; row < Square.MAX_VALUE; row++) {
+			List<Square> rowList = new ArrayList<Square>();
+			puzzle.addRow(rowList);
+			for (int col = 0; col < Square.MAX_VALUE; col++) {
+				rowList.add(new Square());
+			}
+		}
+		return puzzle;
+	}
+	
 	//Returns whether the board is of the correct size.
-	private boolean isValidSize() {
+	protected boolean isValidSize() {
 		if (squares == null || squares.size() != Square.MAX_VALUE) {
 			return false;
 		}
@@ -180,7 +192,7 @@ public class Puzzle {
 
 	//Return a list of all squares related to another square at a given set of coordinates.
 	//The related squares cannot hold the same value as the given square.
-	private List<Square> getRelatedSquares(int row, int col) {
+	protected List<Square> getRelatedSquares(int row, int col) {
 		List<Square> relatedSquares = new ArrayList<Square>();
 		relatedSquares.addAll(getSquaresInRow(row));
 		relatedSquares.addAll(getSquaresInCol(col));
@@ -219,12 +231,12 @@ public class Puzzle {
 	}
 
 	//Return all squares in a given row
-	private List<Square> getSquaresInRow(int row) {
+	protected List<Square> getSquaresInRow(int row) {
 		return squares.get(row);
 	}
 	
 	//Return all squares in a given column
-	private List<Square> getSquaresInCol(int col) {
+	protected List<Square> getSquaresInCol(int col) {
 		List<Square> result = new ArrayList<Square>();
 		for (List<Square> row : squares) {
 			result.add(row.get(col));
@@ -233,7 +245,7 @@ public class Puzzle {
 	}
 	
 	//Return all squares in the same mini-box as the square at the given coordinates
-	private List<Square> getSquaresInBox(int row, int col) {
+	protected List<Square> getSquaresInBox(int row, int col) {
 		List<Square> result = new ArrayList<Square>();
 		int rowMin = getBoxMin(row);
 		int colMin = getBoxMin(col);
