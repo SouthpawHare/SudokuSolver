@@ -5,16 +5,27 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Puzzle {
 	
 	private List< List <Square> > squares = new ArrayList< List <Square> >();
+	private SolveStatus status = SolveStatus.Initial;
 	
 	private Puzzle() {
 		
 	}
 	
+	public SolveStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(SolveStatus status) {
+		this.status = status;
+	}
+
 	public static Puzzle createPuzzleFromInput(File puzzleFile) throws IOException {
 		Puzzle puzzle = new Puzzle();
 		
@@ -107,20 +118,23 @@ public class Puzzle {
 
 	//Search through every square in order, find the first empty square that has only one
 	//possible value, and fill it.  Return whether a square was filled.
-	public SolveStatus solveNext() {
+	public void solveNext() {
 		if (isImpossible()) {
-			return SolveStatus.Impossible;
+			setStatus(SolveStatus.Impossible);
+			return;
 		}
 		
 		for (int row = 0; row < Square.MAX_VALUE; row++) {
 			for (int col = 0; col < Square.MAX_VALUE; col++) {
 				SolveStatus status = solve(row, col);
-				if (status.getContinueAfterResult()) {
-					return status;
+				if (!status.isContinueWithStep()) {
+					setStatus(status);
+					return;
 				}
 			}
 		}
-		return SolveStatus.NoProgress;
+		
+		setStatus(SolveStatus.NoProgress);
 	}
 
 	private boolean isImpossible() {
@@ -128,7 +142,7 @@ public class Puzzle {
 			for (int col = 0; col < Square.MAX_VALUE; col++) {
 				List<Integer> possibleValues = getPossibleValuesFromRelatedSquares(row, col);
 				if (possibleValues.size() == 0) {
-					System.out.println(String.format("Row %d Col %d is impossible!", row, col));
+//					System.out.println(String.format("Row %d Col %d is impossible!", row, col));
 					return true;
 				}
 			}
@@ -148,7 +162,7 @@ public class Puzzle {
 		
 		List<Integer> possibleValues = getPossibleValuesFromRelatedSquares(row, col);
 		
-		System.out.println(String.format("Row %d Col %d possible values: %s", row, col, possibleValues.toString()));
+//		System.out.println(String.format("Row %d Col %d possible values: %s", row, col, possibleValues.toString()));
 		
 		if (possibleValues.size() == 1) {
 			square.setVal(possibleValues.get(0));
@@ -164,12 +178,12 @@ public class Puzzle {
 		relatedSquares.addAll(getSquaresInCol(col));
 		relatedSquares.addAll(getSquaresInBox(row, col));
 		
-		System.out.println(String.format("Row %d Col %d, related squares: %s", row, col, relatedSquares.toString()));
+//		System.out.println(String.format("Row %d Col %d, related squares: %s", row, col, relatedSquares.toString()));
 		
 		return relatedSquares;
 	}
 	
-	private List<Integer> getPossibleValuesFromRelatedSquares(int row, int col) {
+	public List<Integer> getPossibleValuesFromRelatedSquares(int row, int col) {
 		Square square = squares.get(row).get(col);
 		
 		if (square.getValue() != null) {
@@ -225,6 +239,65 @@ public class Puzzle {
 			index--;
 		}
 		return index;
+	}
+
+	public Puzzle copy() {
+		Puzzle copy = new Puzzle();
+		
+		for (List <Square> row : squares) {
+			if (row != null) {
+				List<Square> rowCopy = new ArrayList<Square>();
+				copy.addRow(rowCopy);
+				for (Square square : row) {
+					if (square != null) {
+						Square squareCopy = new Square();
+						if (square.getValue() != null) {
+							squareCopy.setVal(new Integer(square.getValue()));
+						}
+						rowCopy.add(squareCopy);
+					}
+				}
+			}
+		}
+		
+		return copy;
+	}
+
+	public Square getSquare(int row, int col) {
+		return squares.get(row).get(col);
+	}
+
+	public List<GuessData> getGuessesInPriorityOrder() {
+		List<GuessData> guesses = new ArrayList<GuessData>();
+		
+		for (int row = 0; row < Square.MAX_VALUE; row++) {
+			for (int col = 0; col < Square.MAX_VALUE; col++) {
+				List<Integer> possibleValues = getPossibleValuesFromRelatedSquares(row, col);
+				if (possibleValues.size() > 1) {
+					guesses.add(new GuessData(row, col, possibleValues));
+				}
+			}
+		}
+		
+		Collections.sort(guesses, new Comparator<GuessData>() {
+			@Override
+			public int compare(GuessData o1, GuessData o2) {
+				int compNumOfPossibleValues = Integer.compare(
+						o1.getPossibleValues().size(), o2.getPossibleValues().size());
+				if (compNumOfPossibleValues != 0) {
+					return compNumOfPossibleValues;
+				}
+				
+				int compRow = Integer.compare(o1.getRow(), o2.getRow());
+				if (compRow != 0) {
+					return compRow;
+				}
+				
+				return Integer.compare(o1.getCol(), o2.getCol());
+			}
+		});
+		
+		return guesses;
 	}
 
 }

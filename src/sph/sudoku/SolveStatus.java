@@ -2,16 +2,22 @@ package sph.sudoku;
 
 public enum SolveStatus {
 	
-	Progress(true), NoProgress(false), Impossible(true);
+	Initial(true, true), Progress(true, false), NoProgress(false, true), Impossible(false, false);
 	
-	boolean continueAfterResult;
+	boolean continueWithOverall;
+	boolean continueWithStep;
 	
-	private SolveStatus(boolean continueAfterResult) {
-		this.continueAfterResult = continueAfterResult;
+	private SolveStatus(boolean continueWithOverall, boolean continueWithStep) {
+		this.continueWithOverall = continueWithOverall;
+		this.continueWithStep = continueWithStep;
 	}
 	
-	public boolean getContinueAfterResult() {
-		return continueAfterResult;
+	public boolean isContinueWithOverall() {
+		return continueWithOverall;
+	}
+	
+	public boolean isContinueWithStep() {
+		return continueWithStep;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class Solver {
 	
@@ -76,10 +77,33 @@ public class Solver {
 	}
 	
 	public static Puzzle solve(Puzzle puzzle) {
-		SolveStatus status = SolveStatus.Progress;
-		while (!puzzle.isFilled() && status == SolveStatus.Progress) {
-			status = puzzle.solveNext();
-			
+		return solveWorker(puzzle.copy());
+	}
+	
+	private static Puzzle solveWorker(Puzzle puzzle) {
+		while (!puzzle.isFilled() && puzzle.getStatus().isContinueWithOverall()) {
+			puzzle.solveNext();
+		}
+		
+		if (!puzzle.isFilled() && puzzle.getStatus() != SolveStatus.Impossible) {
+			List<GuessData> guesses = puzzle.getGuessesInPriorityOrder();
+			for (GuessData guess : guesses) {
+				for (Integer possibleVal : guess.getPossibleValues()) {
+
+					//							System.out.println(String.format("Making a guess at row %d, col %d: Possible values = %s, guessing %d",
+					//									row, col, possibleValues.toString(), possibleVal));
+
+					Puzzle puzzleCopy = puzzle.copy();
+					puzzleCopy.getSquare(guess.getRow(), guess.getCol()).setVal(possibleVal);
+					puzzleCopy = solveWorker(puzzleCopy);
+
+					if (puzzleCopy.isFilled()) {
+						return puzzleCopy;
+					}
+
+					//							System.out.println("Guess yielded no results");
+				}
+			}
 		}
 		
 		return puzzle;
