@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+//Data structure for a full puzzle.  Contains a grid of squares (spaces) stored in a List
+//of Lists which is required to form the appropriate dimensions (9x9).  Also contains a
+//status, which indicates the result of the last attempt at finding and filling one more
+//square.
 public class Puzzle {
 	
 	private List< List <Square> > squares = new ArrayList< List <Square> >();
@@ -26,6 +30,8 @@ public class Puzzle {
 		this.status = status;
 	}
 
+	//Factory method for creating a new puzzle from an input file.  Handles file
+	//handling IO logic and assures that a valid board has been generated.
 	public static Puzzle createPuzzleFromInput(File puzzleFile) throws IOException {
 		Puzzle puzzle = new Puzzle();
 		
@@ -69,6 +75,7 @@ public class Puzzle {
 		return puzzle;
 	}
 	
+	//Returns whether the board is of the correct size.
 	private boolean isValidSize() {
 		if (squares == null || squares.size() != Square.MAX_VALUE) {
 			return false;
@@ -86,6 +93,7 @@ public class Puzzle {
 	private void addRow(List <Square> row) {
 		squares.add(row);
 	}
+	
 	
 	@Override
 	public String toString() {
@@ -117,7 +125,7 @@ public class Puzzle {
 	}
 
 	//Search through every square in order, find the first empty square that has only one
-	//possible value, and fill it.  Return whether a square was filled.
+	//possible value, and fill it.  Set the status of the puzzle according to the result.
 	public void solveNext() {
 		if (isImpossible()) {
 			setStatus(SolveStatus.Impossible);
@@ -137,12 +145,12 @@ public class Puzzle {
 		setStatus(SolveStatus.NoProgress);
 	}
 
+	//Return whether the puzzle is unsolvable in its current state.
 	private boolean isImpossible() {
 		for (int row = 0; row < Square.MAX_VALUE; row++) {
 			for (int col = 0; col < Square.MAX_VALUE; col++) {
 				List<Integer> possibleValues = getPossibleValuesFromRelatedSquares(row, col);
 				if (possibleValues.size() == 0) {
-//					System.out.println(String.format("Row %d Col %d is impossible!", row, col));
 					return true;
 				}
 			}
@@ -151,8 +159,8 @@ public class Puzzle {
 	}
 
 	//Check if the square at the coordinates is empty and has only one possible value.
-	//If so, fill it with this value and return true.  If it cannot be filled or is
-	//already filled, return false.
+	//If so, fill it with this value.  Set a status indicating whether or not this
+	//was successful.
 	private SolveStatus solve(int row, int col) {
 		Square square = squares.get(row).get(col);
 		
@@ -162,8 +170,6 @@ public class Puzzle {
 		
 		List<Integer> possibleValues = getPossibleValuesFromRelatedSquares(row, col);
 		
-//		System.out.println(String.format("Row %d Col %d possible values: %s", row, col, possibleValues.toString()));
-		
 		if (possibleValues.size() == 1) {
 			square.setVal(possibleValues.get(0));
 			return SolveStatus.Progress;
@@ -172,17 +178,20 @@ public class Puzzle {
 		return SolveStatus.NoProgress;
 	}
 
+	//Return a list of all squares related to another square at a given set of coordinates.
+	//The related squares cannot hold the same value as the given square.
 	private List<Square> getRelatedSquares(int row, int col) {
 		List<Square> relatedSquares = new ArrayList<Square>();
 		relatedSquares.addAll(getSquaresInRow(row));
 		relatedSquares.addAll(getSquaresInCol(col));
 		relatedSquares.addAll(getSquaresInBox(row, col));
-		
-//		System.out.println(String.format("Row %d Col %d, related squares: %s", row, col, relatedSquares.toString()));
-		
+
 		return relatedSquares;
 	}
 	
+	//Return a list of all possible values that do not appear in the squares related to
+	//the square at the given set of coordinates.  These are the possible values that
+	//could go in the given square.
 	public List<Integer> getPossibleValuesFromRelatedSquares(int row, int col) {
 		Square square = squares.get(row).get(col);
 		
@@ -195,6 +204,8 @@ public class Puzzle {
 		return getPossibleValuesFromRelatedSquares(getRelatedSquares(row, col));
 	}
 	
+	//Return a list of all possible values that do not appear in the given list of squares.
+	//A square can appear in the list multiple times, and this will not impact the result.
 	private List<Integer> getPossibleValuesFromRelatedSquares(List<Square> relatedSquares) {
 		List<Integer> possibleValues = new ArrayList<Integer>();
 		for (int i = 1; i <= Square.MAX_VALUE; i++) {
@@ -207,10 +218,12 @@ public class Puzzle {
 		return possibleValues;
 	}
 
+	//Return all squares in a given row
 	private List<Square> getSquaresInRow(int row) {
 		return squares.get(row);
 	}
 	
+	//Return all squares in a given column
 	private List<Square> getSquaresInCol(int col) {
 		List<Square> result = new ArrayList<Square>();
 		for (List<Square> row : squares) {
@@ -219,6 +232,7 @@ public class Puzzle {
 		return result;
 	}
 	
+	//Return all squares in the same mini-box as the square at the given coordinates
 	private List<Square> getSquaresInBox(int row, int col) {
 		List<Square> result = new ArrayList<Square>();
 		int rowMin = getBoxMin(row);
@@ -241,6 +255,7 @@ public class Puzzle {
 		return index;
 	}
 
+	//Create a deep copy of all elements of the puzzle.  The status is reset to "Initial".
 	public Puzzle copy() {
 		Puzzle copy = new Puzzle();
 		
@@ -263,10 +278,13 @@ public class Puzzle {
 		return copy;
 	}
 
-	public Square getSquare(int row, int col) {
+	protected Square getSquare(int row, int col) {
 		return squares.get(row).get(col);
 	}
 
+	//Return a list of data representing all the possible "guesses" that could be made.  Each
+	//guess is derrived from a square that has 2 or more possible values, and are sorted
+	//such that entries with the fewest possible values come first.
 	public List<GuessData> getGuessesInPriorityOrder() {
 		List<GuessData> guesses = new ArrayList<GuessData>();
 		

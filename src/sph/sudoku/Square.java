@@ -1,5 +1,7 @@
 package sph.sudoku;
 
+//Data structure for a single space in a puzzle.  Stores its current value as an integer,
+//which may be null if empty.
 public class Square {
 	
 	public static final int MAX_VALUE = 9;
