@@ -65,5 +65,11 @@ class PuzzleTest {
 			}
 		}
 	}
+	
+	@Test
+	void testEmptyPuzzleNotAllowed() {
+		Puzzle puzzle = Puzzle.createEmptyPuzzle();
+		assertFalse(puzzle.hasEnoughCluesToSolve());
+	}
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Solver {
 	
-	private static final int DEPTH_LIMIT_MAX = 10;
+	private static final int DEPTH_LIMIT_MAX = 3;
 
 	//Main method for running the Solver.  Accepts one parameter: the input file.
 	public static void main (String [] args) {
@@ -87,6 +87,11 @@ public class Solver {
 	}
 	
 	public static Puzzle solve(Puzzle puzzle) {
+		if (!puzzle.hasEnoughCluesToSolve()) {
+			System.out.println("Puzzle does not have the minimum number of clues to be valid");
+			return puzzle;
+		}
+		
 		Puzzle lastResult = puzzle;
 		
 		//Attempt to solve the puzzle with a limit to the recursive depth.  Each time

@@ -15,6 +15,7 @@ import java.util.List;
 //square.
 public class Puzzle {
 	
+	private static final int MINIMUM_NECESSARY_CLUES = 17;
 	private List< List <Square> > squares = new ArrayList< List <Square> >();
 	private SolveStatus status = SolveStatus.Initial;
 	
@@ -328,6 +329,25 @@ public class Puzzle {
 		});
 		
 		return guesses;
+	}
+
+	//Require a minimum number of provided clues in order to allow solving a puzzle in order to
+	//prevent excessive guessing on an invalid puzzle.  The generally agreed-upon minimum number
+	//of clues for a valid unique Sudoku puzzle is 17.
+	protected boolean hasEnoughCluesToSolve() {
+		return getTotalNumberOfFilledSquares() >= MINIMUM_NECESSARY_CLUES;
+	}
+	
+	protected int getTotalNumberOfFilledSquares() {
+		int totalFilled = 0;
+		for (List<Square> row : squares) {
+			for (Square square : row) {
+				if (square.isFilled()) {
+					totalFilled++;
+				}
+			}
+		}
+		return totalFilled;
 	}
 
 }
