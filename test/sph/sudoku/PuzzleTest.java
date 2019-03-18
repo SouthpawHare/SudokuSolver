@@ -2,6 +2,8 @@ package sph.sudoku;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,42 @@ class PuzzleTest {
 	void testEmptyPuzzleNotAllowed() {
 		Puzzle puzzle = Puzzle.createEmptyPuzzle();
 		assertFalse(puzzle.hasEnoughCluesToSolve());
+	}
+	
+	@Test
+	void testEasyPuzzle() throws IOException {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("puzzle1.txt").getFile());
+		Puzzle puzzle = Puzzle.createPuzzleFromInput(file);
+		puzzle = Solver.solve(puzzle);
+		
+		assertTrue(puzzle.isFilled());
+		assertEquals(4, (int)puzzle.getSquare(0, 0).getValue());
+		assertEquals(6, (int)puzzle.getSquare(8, 8).getValue());
+	}
+	
+	@Test
+	void testHardPuzzle() throws IOException {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("puzzle5.txt").getFile());
+		Puzzle puzzle = Puzzle.createPuzzleFromInput(file);
+		puzzle = Solver.solve(puzzle);
+		
+		assertTrue(puzzle.isFilled());
+		assertEquals(9, (int)puzzle.getSquare(0, 0).getValue());
+		assertEquals(1, (int)puzzle.getSquare(8, 8).getValue());
+	}
+	
+	@Test
+	void testVeryHardPuzzle() throws IOException {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource("extra1.txt").getFile());
+		Puzzle puzzle = Puzzle.createPuzzleFromInput(file);
+		puzzle = Solver.solve(puzzle);
+		
+		assertTrue(puzzle.isFilled());
+		assertEquals(1, (int)puzzle.getSquare(0, 0).getValue());
+		assertEquals(9, (int)puzzle.getSquare(8, 8).getValue());
 	}
 
 }
